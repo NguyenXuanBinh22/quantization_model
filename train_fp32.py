@@ -34,8 +34,8 @@ def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-
     val_set = Subset(base_dataset, val_indices)
 
     # 3. Tạo DataLoader (Để num_workers=0 để an toàn tuyệt đối trên Windows)
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, num_workers=0)
+    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, num_workers=4)
 
     model = resnet18(weights=ResNet18_Weights.DEFAULT)
     model.fc = nn.Linear(model.fc.in_features, 10)
@@ -44,8 +44,14 @@ def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
     
+    # chạy trên local
     save_path = 'weights/resnet18_fp32.pth'
     os.makedirs('weights', exist_ok=True)
+
+    # chạy trên Kaggle
+    # save_path = 'kaggle/working/weights/resnet18_fp32.pth'
+    # os.makedirs('kaggle/working/weights', exist_ok=True)
+
     best_val_loss = float('inf')
 
     for epoch in range(epochs):
