@@ -13,7 +13,7 @@ from torch.quantization import QConfig
 from torch.ao.quantization.quantize_fx import prepare_qat_fx, convert_fx
 from torch.ao.quantization.observer import HistogramObserver, PerChannelMinMaxObserver
 
-ipdb_sys_excepthook()
+# ipdb_sys_excepthook()
 
 def main():
     # 1. Cấu hình & Data Loader
@@ -107,7 +107,7 @@ def main():
     
     # Lưu lại model quantized nếu cần
     torch.save(quantized_model.state_dict(), "weights/resnet18_quantized_int8.pth")
-    xxx
+    print("Đã lưu model quantized tại weights/resnet18_quantized_int8.pth")
 
 if __name__ == '__main__':
     main()
