@@ -26,7 +26,12 @@ def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-
     val_size = actual_size - train_size
     
     # Chia ngẫu nhiên các chỉ số hiện có
-    train_indices, val_indices = random_split(actual_indices, [train_size, val_size])
+    seed = 42
+    g = torch.Generator().manual_seed(seed)
+    train_indices, val_indices = random_split(
+        actual_indices, 
+        [train_size, val_size]
+        , generator=g)
 
     # Tạo các Subset mới trực tiếp từ dataset gốc để tránh lỗi index lồng nhau
    

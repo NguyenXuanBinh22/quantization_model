@@ -93,7 +93,7 @@ def main():
             optimizer_qat.step()
             running_loss += loss.item()
         
-        print(f"QAT Epoch {epoch+1}/6 - Avg Loss: {running_loss/len(train_loader):.4f}")
+        print(f"QAT Epoch {epoch+1}/10 - Avg Loss: {running_loss/len(train_loader):.4f}")
 
     # 6. Chuyển đổi sang Quantized Model (INT8)
     print("\n--- Đang chuyển đổi sang INT8 Model ---")
