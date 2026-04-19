@@ -83,8 +83,8 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
 
     fx_model.train()
-    num_epochs_qat = 2 # Số epoch QAT
-    for epoch in range(2): 
+    num_epochs_qat = 10 # Số epoch QAT
+    for epoch in range(num_epochs_qat): 
         running_loss = 0.0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
@@ -121,7 +121,7 @@ def main():
     
 
     print("\n--- So sánh tốc độ inference giữa FP32 và INT8 ---")
-    compare_inference_speed(model, quantized_model, input_size=(1, 3, 224, 224), n_iters=10)
-    
+    compare_inference_speed(model, quantized_model, input_size=(1, 3, 224, 224), n_iters=100)
+
 if __name__ == '__main__':
     main()
