@@ -1,8 +1,8 @@
 import os
 import torch
 from model.resnet import resnet18
-from ipdb_hook import ipdb_sys_excepthook
-from evaluate import predict_sample, run_benchmark
+# from ipdb_hook import ipdb_sys_excepthook
+from evaluate import run_benchmark, print_model_information, predict_sample, compare_inference_speed
 from data_loader import get_dataloader
 
 # Import các thư viện Quantization
@@ -12,6 +12,7 @@ from torch.ao.quantization.qconfig_mapping import QConfigMapping
 from torch.quantization import QConfig
 from torch.ao.quantization.quantize_fx import prepare_qat_fx, convert_fx
 from torch.ao.quantization.observer import HistogramObserver, PerChannelMinMaxObserver
+from torch.ao.quantization import get_default_qat_qconfig_mapping
 
 # ipdb_sys_excepthook()
 
@@ -82,7 +83,8 @@ def main():
     criterion = torch.nn.CrossEntropyLoss()
 
     fx_model.train()
-    for epoch in range(10): 
+    num_epochs_qat = 2 # Số epoch QAT
+    for epoch in range(2): 
         running_loss = 0.0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
@@ -93,7 +95,7 @@ def main():
             optimizer_qat.step()
             running_loss += loss.item()
         
-        print(f"QAT Epoch {epoch+1}/10 - Avg Loss: {running_loss/len(train_loader):.4f}")
+        print(f"QAT Epoch {epoch+1}/{num_epochs_qat} - Avg Loss: {running_loss/len(train_loader):.4f}")
 
     # 6. Chuyển đổi sang Quantized Model (INT8)
     print("\n--- Đang chuyển đổi sang INT8 Model ---")
@@ -109,5 +111,17 @@ def main():
     torch.save(quantized_model.state_dict(), "weights/resnet18_quantized_int8.pth")
     print("Đã lưu model quantized tại weights/resnet18_quantized_int8.pth")
 
+    # print thông tin về model gốc (FP32)
+    print("\nThông tin về mô hình gốc (FP32):")
+    print_model_information(model, 'cpu')
+
+    # print thông tin về quantized model
+    print("\nThông tin về mô hình sau khi Quantization:")
+    print_model_information(quantized_model, 'cpu')
+    
+
+    print("\n--- So sánh tốc độ inference giữa FP32 và INT8 ---")
+    compare_inference_speed(model, quantized_model, input_size=(1, 3, 224, 224), n_iters=10)
+    
 if __name__ == '__main__':
     main()

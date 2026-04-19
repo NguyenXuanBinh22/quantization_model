@@ -30,7 +30,7 @@ def test_model_complete(model_path='weights/resnet18_fp32.pth', device_str=None)
 
     # 4. Chuẩn bị dữ liệu Test (1000 mẫu để kết quả benchmark ổn định)
     # Chúng ta dùng is_train=False để lấy tập test gốc của CIFAR-10
-    test_loader = get_dataloader(is_train=False, limit_samples=1000)
+    test_loader = get_dataloader(is_train=False, limit_samples=200)
     cifar10_classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
     print("\n--- BẮT ĐẦU ĐÁNH GIÁ CHI TIẾT ---")

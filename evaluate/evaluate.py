@@ -5,6 +5,8 @@ from sklearn.metrics import precision_recall_fscore_support
 import urllib
 from PIL import Image
 from torchvision import transforms
+import time
+import io
 
 def predict_sample(model, device_str: str, classes=None):
     """
@@ -91,3 +93,62 @@ def run_benchmark(model, dataloader, device='cpu'):
     print(f"Precision: {precision:.4f}")
     print(f"Recall   : {recall:.4f}")
     print(f"F1-Score : {f1:.4f}")
+
+
+def print_model_information(model, device):
+    
+    # 1. Tính dung lượng thực tế (Hoạt động cho cả FP32 và Quantized INT8)
+    buffer = io.BytesIO()
+    torch.save(model.state_dict(), buffer)
+    size_mb = buffer.tell() / (1024 * 1024)
+    
+    print(f"Model: {model.__class__.__name__}")
+    print(model) # Bỏ comment nếu bạn muốn in cấu trúc chi tiết của GraphModule
+    
+    print("-" * 30)
+    # print(f"Total Parameters (nn.Parameter): {total_params}")
+    print(f"Model Size (Dung lượng): {size_mb:.2f} MB")
+    print(f"Running on device: {device}")
+    
+    # Gợi ý nhỏ để kiểm tra xem đã quantize chưa
+    is_quantized = any('quantized' in str(type(m)).lower() for m in model.modules())
+    print(f"Is Quantized: {is_quantized}")
+    print("-" * 30)
+
+  
+def compare_inference_speed(model_fp32, model_int8, input_size=(1, 3, 224, 224), n_iters=100):
+    # Tạo dữ liệu giả lập (dummy data)
+    dummy_input = torch.randn(input_size)
+    
+    # Đưa về CPU vì quantization INT8 chạy tốt nhất trên CPU
+    model_fp32.to('cpu')
+    model_int8.to('cpu')
+    
+    # Warm-up: Chạy thử vài vòng để CPU ổn định
+    print("Đang warm-up...")
+    with torch.no_grad():
+        for _ in range(10):
+            _ = model_fp32(dummy_input)
+            _ = model_int8(dummy_input)
+
+    # Đo mô hình gốc (FP32)
+    start_fp32 = time.time()
+    with torch.no_grad():
+        for _ in range(n_iters):
+            _ = model_fp32(dummy_input)
+    end_fp32 = time.time()
+    avg_fp32 = (end_fp32 - start_fp32) / n_iters * 1000 # Đổi sang ms
+
+    # Đo mô hình đã nén (INT8)
+    start_int8 = time.time()
+    with torch.no_grad():
+        for _ in range(n_iters):
+            _ = model_int8(dummy_input)
+    end_int8 = time.time()
+    avg_int8 = (end_int8 - start_int8) / n_iters * 1000 # Đổi sang ms
+
+    print("-" * 40)
+    print(f"FP32 Model: {avg_fp32:.2f} ms / ảnh")
+    print(f"INT8 Model: {avg_int8:.2f} ms / ảnh")
+    print(f"Tốc độ cải thiện: {avg_fp32 / avg_int8:.2f}x")
+    print("-" * 40)

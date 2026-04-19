@@ -1,1 +1,1 @@
-from .evaluate import predict_sample, run_benchmark
+from .evaluate import predict_sample, run_benchmark, print_model_information, compare_inference_speed
