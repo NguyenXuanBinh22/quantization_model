@@ -7,8 +7,7 @@ from torch.utils.data import random_split, DataLoader
 import os
 
 
-def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-4, device='cuda'):
-    seed = 42
+def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-4, device='cuda',seed=42):
     g = torch.Generator().manual_seed(seed)
 
     # 1. Lấy dataloader và subset ban đầu
@@ -89,5 +88,5 @@ def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-
 if __name__ == '__main__':
     # Bắt buộc phải có khối này trên Windows khi dùng multiprocessing
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    train_with_val_ratio(total_samples=10000, epochs=100, train_ratio=0.8, device=device)
+    train_with_val_ratio(total_samples=15000, epochs=100, train_ratio=0.8, device=device)
 

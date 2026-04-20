@@ -3,7 +3,7 @@ import torchvision.transforms as transforms
 from torchvision.datasets import CIFAR10, ImageFolder
 from torch.utils.data import DataLoader, Subset # Thêm Subset
 
-def get_dataloader(root='./data', batch_size=32, is_train=True, use_cifar=True, limit_samples=None):
+def get_dataloader(root='./data', batch_size=32, is_train=True, use_cifar=True, limit_samples=None, seed=42):
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
@@ -22,7 +22,8 @@ def get_dataloader(root='./data', batch_size=32, is_train=True, use_cifar=True, 
         # indices = torch.arange(limit_samples)
 
         # Lấy ra limit_samples chỉ số ngẫu nhiên
-        indices = torch.randperm(len(dataset))[:limit_samples]
+        generator = torch.Generator().manual_seed(seed)
+        indices = torch.randperm(len(dataset), generator=generator)[:limit_samples]
 
         dataset = Subset(dataset, indices)
 
