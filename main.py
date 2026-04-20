@@ -116,7 +116,9 @@ def main():
     print("\n--- Bắt đầu fine-tuning mô hình FP32 gốc để so sanh ---")
     fp32_finetuned = deepcopy(model)
     optimizer_fp32 = torch.optim.Adam(fp32_finetuned.parameters(), lr=1e-5)
+    fp32_finetuned.to(device)
 
+    fp32_finetuned.train()
     for epoch in range(num_epochs_qat):
         running_loss = 0.0
         for images, labels in train_loader:
