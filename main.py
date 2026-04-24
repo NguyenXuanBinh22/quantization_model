@@ -112,33 +112,33 @@ def main():
     torch.save(quantized_model.state_dict(), "weights/resnet18_quantized_int8.pth")
     print("Đã lưu model quantized tại weights/resnet18_quantized_int8.pth")
 
-    # Fine-tuning model FP32 gốc để so sánh (nếu cần)
-    print("\n--- Bắt đầu fine-tuning mô hình FP32 gốc để so sanh ---")
-    fp32_finetuned = deepcopy(model)
-    optimizer_fp32 = torch.optim.Adam(fp32_finetuned.parameters(), lr=1e-5)
-    fp32_finetuned.to(device)
+    # # Fine-tuning model FP32 gốc để so sánh (nếu cần)
+    # print("\n--- Bắt đầu fine-tuning mô hình FP32 gốc để so sanh ---")
+    # fp32_finetuned = deepcopy(model)
+    # optimizer_fp32 = torch.optim.Adam(fp32_finetuned.parameters(), lr=1e-5)
+    # fp32_finetuned.to(device)
 
-    fp32_finetuned.train()
-    for epoch in range(num_epochs_qat):
-        running_loss = 0.0
-        for images, labels in train_loader:
-            images, labels = images.to(device), labels.to(device)
-            optimizer_fp32.zero_grad()
-            outputs = fp32_finetuned(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer_fp32.step()
-            running_loss += loss.item()
+    # fp32_finetuned.train()
+    # for epoch in range(num_epochs_qat):
+    #     running_loss = 0.0
+    #     for images, labels in train_loader:
+    #         images, labels = images.to(device), labels.to(device)
+    #         optimizer_fp32.zero_grad()
+    #         outputs = fp32_finetuned(images)
+    #         loss = criterion(outputs, labels)
+    #         loss.backward()
+    #         optimizer_fp32.step()
+    #         running_loss += loss.item()
         
-        print(f"FP32 Fine-tuning Epoch {epoch+1}/{num_epochs_qat} - Avg Loss: {running_loss/len(train_loader):.4f}")
+    #     print(f"FP32 Fine-tuning Epoch {epoch+1}/{num_epochs_qat} - Avg Loss: {running_loss/len(train_loader):.4f}")
 
     # Đánh giá mô hình FP32 gốc trước fine-tuning
     print("\nKẾT QUẢ MÔ HÌNH FP32 GỐC:")
     run_benchmark(model, test_loader, device = 'cpu')
 
-    # Đánh giá mô hình FP32 gốc sau fine-tuning
-    print("\nKẾT QUẢ SAU FINE-TUNING MÔ HÌNH FP32 GỐC:")
-    run_benchmark(fp32_finetuned, test_loader, device = 'cpu')
+    # # Đánh giá mô hình FP32 gốc sau fine-tuning
+    # print("\nKẾT QUẢ SAU FINE-TUNING MÔ HÌNH FP32 GỐC:")
+    # run_benchmark(fp32_finetuned, test_loader, device = 'cpu')
 
     # print thông tin về model gốc (FP32)
     print("\nThông tin về mô hình gốc (FP32):")
