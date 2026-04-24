@@ -13,6 +13,8 @@ from torch.ao.quantization.qconfig_mapping import QConfigMapping
 from torch.quantization import QConfig
 from torch.ao.quantization.quantize_fx import prepare_qat_fx, convert_fx
 from torch.ao.quantization.observer import HistogramObserver, PerChannelMinMaxObserver
+import torch.nn.intrinsic as nni
+import torch.ao.quantization as ao_quant
 # from torch.ao.quantization import get_default_qat_qconfig_mapping
 
 # ipdb_sys_excepthook()
@@ -85,7 +87,26 @@ def main():
 
     fx_model.train()
     num_epochs_qat = 10 # Số epoch QAT
+    freeze_at_epoch = 7 # Epoch để bắt đầu đóng băng các tham số learnable quantization
+
     for epoch in range(num_epochs_qat): 
+
+        if epoch >= freeze_at_epoch:
+            # 1. Đóng băng Batch Norm: Không cập nhật mean/var nữa
+            # Sử dụng đúng submodule qat cho các lớp đã fused
+            fx_model.apply(nni.qat.freeze_bn_stats)
+            
+            # 2. Đóng băng Observers: Cố định giá trị Scale và Zero-point
+            # Giúp trọng số (weights) hội tụ ổn định trong dải định lượng đã chọn
+            fx_model.apply(ao_quant.disable_observer)
+            
+            if epoch == freeze_at_epoch:
+                print(f">>> Đang đóng băng BN và Observers để tinh chỉnh trọng số...")
+            # 3. Giảm Learning Rate (Rất quan trọng!)
+            for param_group in optimizer_qat.param_groups:
+                param_group['lr'] *= 0.1
+
+
         running_loss = 0.0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
