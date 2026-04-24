@@ -88,5 +88,5 @@ def train_with_val_ratio(total_samples=3000, train_ratio=0.8, epochs=100, lr=1e-
 if __name__ == '__main__':
     # Bắt buộc phải có khối này trên Windows khi dùng multiprocessing
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    train_with_val_ratio(total_samples=15000, epochs=20, train_ratio=0.8, device=device)
+    train_with_val_ratio(total_samples=15000, epochs=6, train_ratio=0.8, device=device)
 
